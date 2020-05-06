@@ -30,16 +30,18 @@ public class Hospital {
             preparedStmt.setString(4, hosEmail);
             preparedStmt.execute();
             con.close();
-            output = "Inserted successfully";
+            
+            String newHospital = readHospital(); 
+            output = "{\"status\":\"success\",\"data\": \"" +newHospital + "\"}";
+            
             System.out.println("Inserted successfully.......................................");
         } catch (Exception e) {
-            output = "Error while inserting the Hospitals.";
-            System.out.println("Error while inserting the Hospitals........." + e);
-            System.err.println(e.getMessage());
+            output = "{\"status\":\"error\", \"data\":\"Error while inserting the Hospitals.\"}";
+                System.err.println(e.getMessage());
         }
         return output;
     }
-    //
+    
     public String readHospital() {
         String output = "";
         try {
@@ -48,13 +50,8 @@ public class Hospital {
                 return "Error while connecting to the database for reading.";
             }
             // Prepare the html table to be displayed
-            output = "<table border=\"1\">" +
-                "<th>Hospital Name</th" +
-                "><th>Contatct No</th>" +
-                "<th>Address</th>" +
-                "<th>E-mail</th>" +
-                "<th>Update</th>" +
-                "<th>Remove</th></tr>";
+            output ="<table border='1'><tr><th>Hospital Name</th><th>Tel No</th><th>"
+					+ "Address</th><th>Email</th><th>Update</th><th>Remove</th></tr>";
             String query = "select * from hospital";
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -66,20 +63,33 @@ public class Hospital {
                 String hosAddress = rs.getString("hosAddress");
                 String hosEmail = rs.getString("hosEmail");
 
+				//Replacing spaces in Hospital name
+				//hosName=hosName.replace('+', ' ');
+				//Replacing spaces,commas and slashes in Hospital address
+				//hosAddress=hosAddress.replace('+', ' ');
+				//hosAddress=hosAddress.replaceAll("%2C",",");
+				//hosAddress=hosAddress.replaceAll("%2F","/");
+				//Replacing @ in Hospital email
+				//hosEmail=hosEmail.replaceAll("%40","@");
+                
+                hosName = hosName.replace('+', ' ');
+     			hosEmail=hosEmail.replaceAll("%40","@");
+			    hosAddress=hosAddress.replaceAll("%2C",",");
+ 				hosAddress=hosAddress.replace('+','/');
 
                 // Add into the html table
-                output += "<tr><td><input id=\"hidHospitalIDUpdate\"name=\"hidHospitalIDUpdate\"type=\"hidden\" value=\"" + hosID + "\">" +
+                output += "<tr><td><input id='hidHospitalIDUpdate'name='hidHospitalIDUpdate'type='hidden' value='" + hosID + "'>" +
                     hosName + "</td>";
                 output += "<td>" + hosTelNo + "</td>";
                 output += "<td>" + hosAddress + "</td>";
                 output += "<td>" + hosEmail + "</td>";
 
                 // buttons
-                output += "<td><input name=\"btnUpdate\" type=\"submit\"value=\"Update\" class=\"btn btn-warning btnUpdate\"></td>" +
-                    "<td><form method=\"post\" action=\"Hospital_Insert.jsp\">" +
-                    "<input name=\"btnRemove\" type=\"submit\" value=\"Remove\"class=\"btn btn-danger\">" +
-                    "<input name=\"hidHospitalIDDelete\" type=\"hidden\" value=\"" + hosID + "\">" + "</form></td></tr>";
-                //1233
+                output += "<td><input name='btnUpdate'type='button' "
+						+ "value='Update'class='btn btn-warning'></td>"
+						+ "<td><input name='btnRemove'type='button' "
+						+ "value='Remove'class='btn btn-danger'data-hospitalid='"+ hosID + "'>" + "</td></tr>";
+                
             }
             con.close();
             // Complete the html table
@@ -91,7 +101,7 @@ public class Hospital {
         return output;
     }
 
-    public String updateHopital(String ID, String hName, String contactNo, String address, String email) {
+    public String updateHospital(String ID, String hName, String contactNo, String address, String email) {
         System.out.println("Update method...............................................................................");
         String output = "";
         try {
@@ -112,9 +122,12 @@ public class Hospital {
             // execute the statement
             preparedStmt.execute();
             con.close();
-            output = "Updated successfully";
+            
+            String newHospital = readHospital(); 
+            
+            output = "{\"status\":\"success\", \"data\": \"" +newHospital + "\"}";
         } catch (Exception e) {
-            output = "Error while updating the Hospital.";
+            output = "{\"status\":\"error\", \"data\":\"Error while updating the Hospitals.\"}";
             System.err.println(e.getMessage());
         }
         return output;
@@ -135,13 +148,13 @@ public class Hospital {
             // execute the statement
             preparedStmt.execute();
             con.close();
-            output = " Hospital Deleted successfully";
+            String newHospital = readHospital();
+            output = "{\"status\":\"success\", \"data\": \"" +newHospital + "\"}";
         } catch (Exception e) {
-            output = "Error while deleting the Hospital.";
+            output = "{\"status\":\"error\", \"data\":\"Error while deleting the Hospital.\"}"; 
             System.err.println(e.getMessage());
         }
         return output;
     }
-
 
 }
